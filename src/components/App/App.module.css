@@ -1,0 +1,30 @@
+.mainContainer {
+    display: grid;
+    grid-template-columns: 1fr 10fr;
+    min-height: 100vh;
+    height: 100%;
+}
+
+.mainContainer.noNav {
+    grid-template-columns: 1fr;
+}
+
+.mainContainer:global(.bp3-dark) {
+    background-color: #394b59;
+}
+
+.mainNav {}
+
+:global(.bp3-dark) .mainNav {
+    background-color: #30404d;
+}
+
+.mainContent {
+    padding: 16px;
+}
+
+.themeSwitcher {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+}
