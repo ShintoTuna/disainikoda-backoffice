@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useContext, useState } from 'react';
-import { withAuthorization, Condition } from '../../utils/Session';
-import { FirebaseContext } from '../../utils/Firebase';
+import { withAuthorization, Condition } from '../../contexts/Session';
+import { FirebaseContext } from '../../contexts/Firebase';
 import { UserWithRoles } from '../../types';
 import { H3, Card, Divider, Button } from '@blueprintjs/core';
 

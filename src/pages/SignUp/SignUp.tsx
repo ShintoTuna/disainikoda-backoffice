@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link, withRouter, RouteComponentProps } from 'react-router-dom';
-import { FirebaseContext } from '../../utils/Firebase';
+import { FirebaseContext } from '../../contexts/Firebase';
 import * as ROLES from '../../constants/roles';
 import Route from '../../constants/routes';
 

@@ -1,6 +1,6 @@
 import { RouteProps, Route, Redirect } from 'react-router';
 import React, { FC, useContext } from 'react';
-import { AuthUserContext, Condition } from '../../utils/Session';
+import { AuthUserContext, Condition } from '../../contexts/Session';
 import RoutePath from '../../constants/routes';
 
 interface OwnProps {

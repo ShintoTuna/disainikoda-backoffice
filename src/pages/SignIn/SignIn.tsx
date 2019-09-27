@@ -3,7 +3,7 @@ import { Button, Card, Elevation, H3 } from '@blueprintjs/core';
 import s from './SignIn.module.css';
 import { Form, FormikProps, Formik, FormikConfig } from 'formik';
 import StyledInput from '../../components/Form/StyledInput';
-import { FirebaseContext } from '../../utils/Firebase';
+import { FirebaseContext } from '../../contexts/Firebase';
 import Route from '../../constants/routes';
 import { withRouter, RouteComponentProps } from 'react-router-dom';
 import * as Yup from 'yup';

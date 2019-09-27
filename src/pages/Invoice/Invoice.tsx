@@ -1,7 +1,7 @@
 import React, { FC, useState, useContext, useEffect } from 'react';
 import { Classes, Button } from '@blueprintjs/core';
 import { Student } from '../../types';
-import { FirebaseContext } from '../../utils/Firebase';
+import { FirebaseContext } from '../../contexts/Firebase';
 import StyledInput from '../../components/Form/StyledInput';
 import { Form, Formik, FormikConfig, FieldArray } from 'formik';
 import * as Yup from 'yup';

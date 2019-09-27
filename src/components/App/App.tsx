@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import Navigation from '../Navigation';
-import { FirebaseContext } from '../../utils/Firebase';
-import { AuthUserContext } from '../../utils/Session';
+import { FirebaseContext } from '../../contexts/Firebase';
+import { AuthUserContext } from '../../contexts/Session';
 import Router from '../Router';
 import { useTheme, Theme } from '../../utils/theme';
 import { Classes, Button } from '@blueprintjs/core';

@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { Condition, withAuthorization } from '../../utils/Session';
+import { Condition, withAuthorization } from '../../contexts/Session';
 
 const Home: FC = () => <div>Home</div>;
 

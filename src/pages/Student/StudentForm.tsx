@@ -3,7 +3,7 @@ import { Form, Formik, FormikConfig } from 'formik';
 import StyledInput from '../../components/Form/StyledInput';
 import { Button, Divider } from '@blueprintjs/core';
 import * as Yup from 'yup';
-import { FirebaseContext } from '../../utils/Firebase';
+import { FirebaseContext } from '../../contexts/Firebase';
 import { Student } from '../../types';
 
 type FormModel = Omit<Student, 'uid'>;

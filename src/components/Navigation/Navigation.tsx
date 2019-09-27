@@ -1,7 +1,7 @@
 import React, { FC, useContext } from 'react';
 import { withRouter, RouteComponentProps } from 'react-router-dom';
 import { Menu } from '@blueprintjs/core';
-import { FirebaseContext } from '../../utils/Firebase';
+import { FirebaseContext } from '../../contexts/Firebase';
 import Route from '../../constants/routes';
 
 type Props = RouteComponentProps<void>;

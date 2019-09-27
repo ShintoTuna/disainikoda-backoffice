@@ -1,6 +1,6 @@
 import React, { FC, useState, useContext, useEffect } from 'react';
 import { Student } from '../../types';
-import { FirebaseContext } from '../../utils/Firebase';
+import { FirebaseContext } from '../../contexts/Firebase';
 import { Classes } from '@blueprintjs/core';
 
 const Students: FC = () => {
