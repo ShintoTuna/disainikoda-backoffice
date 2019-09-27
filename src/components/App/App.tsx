@@ -7,7 +7,7 @@ import Router from '../Router';
 import { useTheme, Theme } from '../../utils/theme';
 import { Classes, Button } from '@blueprintjs/core';
 import s from './App.module.css';
-import { UserWithRoles } from '../../types/indexd';
+import { UserWithRoles } from '../../types';
 
 const App = () => {
     const savedUser = JSON.parse(localStorage.getItem('authUser') || 'null');

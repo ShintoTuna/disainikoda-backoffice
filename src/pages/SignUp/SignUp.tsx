@@ -71,7 +71,9 @@ class SignUpFormBase extends Component<Props> {
         return (
             <form onSubmit={this.onSubmit}>
                 <input name="username" value={username} onChange={this.onChange} type="text" placeholder="username" />
+                <br />
                 <input name="email" value={email} onChange={this.onChange} type="text" placeholder="Email Address" />
+                <br />
                 <input
                     name="passwordOne"
                     value={passwordOne}
@@ -79,6 +81,7 @@ class SignUpFormBase extends Component<Props> {
                     type="password"
                     placeholder="Password"
                 />
+                <br />
                 <input
                     name="passwordTwo"
                     value={passwordTwo}
@@ -86,10 +89,12 @@ class SignUpFormBase extends Component<Props> {
                     type="password"
                     placeholder="Confirm Password"
                 />
+                <br />
                 <label>
                     Admin:
                     <input name="isAdmin" type="checkbox" checked={isAdmin} onChange={this.onChangeCheckbox} />
                 </label>
+                <br />
                 <button type="submit" disabled={isInvalid}>
                     Sign Up
                 </button>

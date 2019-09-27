@@ -5,7 +5,7 @@ import { FirebaseContext } from '../Firebase';
 import { AuthUserContext } from '.';
 import { Condition } from '.';
 import * as ROLES from '../../constants/roles';
-import { UserWithRoles } from '../../types/indexd';
+import { UserWithRoles } from '../../types';
 
 type Props = RouteComponentProps<void>;
 

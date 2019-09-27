@@ -1,7 +1,7 @@
 import app from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
-import { UserWithRoles } from '../../types/indexd';
+import { UserWithRoles } from '../../types';
 
 const config = {
     apiKey: 'AIzaSyBcWr_GvqN-8nAiAvyTgnebYpTO0CTRmog',
@@ -47,7 +47,7 @@ class Firebase {
                         if (!dbUser.roles) {
                             dbUser.roles = {};
                         }
-                        // merge auth and db user
+
                         const userWithRoles = {
                             uid: authUser.uid,
                             email: authUser.email,
