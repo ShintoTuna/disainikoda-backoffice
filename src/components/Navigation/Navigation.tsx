@@ -12,7 +12,9 @@ const Nav: FC<Props> = ({ history }) => {
 
     return (
         <Menu large>
-            <Menu.Item icon="user" onClick={() => go(Route.users)} text="Users" />
+            {/* <Menu.Item icon="user" onClick={() => go(Route.users)} text="Users" /> */}
+            <Menu.Item icon="document" onClick={() => go(Route.invoice)} text="Invoice" />
+            <Menu.Item icon="user" onClick={() => go(Route.student)} text="Students" />
             <Menu.Divider />
             <Menu.Item icon="send-to" onClick={() => firebase.doSignOut()} text="Sign Out" />
         </Menu>

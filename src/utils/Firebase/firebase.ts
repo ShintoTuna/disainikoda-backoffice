@@ -64,8 +64,8 @@ class Firebase {
     user = (uid: string) => this.db.doc(`users/${uid}`);
     users = () => this.db.collection('users');
 
-    // *** Orders API ***
-    order = (uid: string) => this.db.doc(`orders/${uid}`);
-    orders = () => this.db.collection('orders');
+    // *** Students API ***
+    student = (uid: string) => this.db.doc(`student/${uid}`);
+    students = () => this.db.collection('student');
 }
 export default Firebase;
