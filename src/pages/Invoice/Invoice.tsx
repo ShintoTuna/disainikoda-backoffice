@@ -1,20 +1,27 @@
 import React, { FC, useState, useContext, useEffect } from 'react';
 import { Classes, Button } from '@blueprintjs/core';
-import { Student } from '../../types';
+import { Student, Config } from '../../types';
 import { FirebaseContext } from '../../contexts/Firebase';
 import StyledInput from '../../components/Form/StyledInput';
-import { Form, Formik, FormikConfig, FieldArray } from 'formik';
+import { Form, Formik, FormikConfig } from 'formik';
 import * as Yup from 'yup';
 import StyledCheckbox from '../../components/Form/StyledCheckbox';
 import FormikDebug from '../../utils/FormikDebug';
+import ConfigContext from '../../contexts/Config';
+import Loader from '../../components/Loader';
+import maxBy from 'lodash/maxBy';
 
-interface FormModel {}
+interface FormModel {
+    invoices: any[];
+    title: string;
+}
 
 const Invoice: FC = () => {
     const [loading, setLoading] = useState(true);
     const [students, setStudents] = useState<Student[]>([]);
     const firebase = useContext(FirebaseContext);
-    const { formikArgs, submitting } = useForm(students);
+    const config = useContext(ConfigContext);
+    const { formikArgs, submitting } = useForm(students, config as Config);
 
     useEffect(
         () =>
@@ -30,35 +37,32 @@ const Invoice: FC = () => {
     );
 
     return (
-        <div>
-            {loading && <p>Loading ...</p>}
+        <Loader loading={!(students.length > 0 && config) || loading}>
             <Formik {...formikArgs}>
                 <Form>
-                    <FieldArray name="invoices">
-                        {(arrayHelpers) =>
-                            students.length > 0 && (
-                                <table className={[Classes.HTML_TABLE, Classes.HTML_TABLE_STRIPED].join(' ')}>
-                                    <thead>
-                                        <tr>
-                                            <th>Name</th>
-                                            <th>Invoice Nr.</th>
-                                            <th>Billing Amount</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {students.map((student, i) => (
-                                            <InvoiceRow key={i} student={student} index={i} />
-                                        ))}
-                                    </tbody>
-                                </table>
-                            )
-                        }
-                    </FieldArray>
-                    <Button>Send invoices</Button>
+                    <table className={[Classes.HTML_TABLE, Classes.HTML_TABLE_STRIPED].join(' ')}>
+                        <thead>
+                            <tr>
+                                <th>&nbsp;</th>
+                                <th>Name</th>
+                                <th>Invoice Nr.</th>
+                                <th>Billing Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {students.map((student, i) => (
+                                <InvoiceRow key={i} student={student} index={i} />
+                            ))}
+                        </tbody>
+                    </table>
+                    <StyledInput name="title" label="title" />
+                    <Button loading={submitting} type="submit">
+                        Send invoices
+                    </Button>
                     <FormikDebug />
                 </Form>
             </Formik>
-        </div>
+        </Loader>
     );
 };
 
@@ -68,38 +72,69 @@ const InvoiceRow: FC<{ student: Student; index: number }> = ({ student, index })
 
     return (
         <tr>
+            <td>
+                <StyledCheckbox name={`invoices.${index}.included`} />
+            </td>
             <td>{`${student.lastName} ${student.firstName}${billingName()}`}</td>
             <td>
-                <StyledInput name={`invoices.${index}.number`} />
+                <StyledInput type="number" name={`invoices.${index}.number`} />
             </td>
             <td>
-                <StyledInput name={`invoices.${index}.amount`} />
+                <StyledInput type="number" name={`invoices.${index}.amount`} />
             </td>
         </tr>
     );
 };
 
-function useForm(students: Student[]) {
+function useForm(students: Student[], config: Config) {
     const [loading, setLoading] = useState(false);
     const firebase = useContext(FirebaseContext);
+    let counter = 0;
 
-    // const initialValues = () => {
-    //     return
-    // }
+    const initialValues = () =>
+        students.map((s) => {
+            counter++;
+            const id = (config && config.invoice.lastId) || 0;
+            const amount = (config && config.invoice.defaultAmount) || 0;
+
+            return { uid: s.uid, number: id + counter, amount, included: true };
+        });
 
     const formikArgs: FormikConfig<FormModel> = {
+        validationSchema: Yup.object().shape({
+            title: Yup.string().required(),
+            invoices: Yup.array().required(),
+        }),
+        enableReinitialize: true,
         initialValues: {
-            invoices: [],
+            title: '',
+            invoices: config ? initialValues() : [],
         },
         onSubmit: async (data) => {
             try {
                 setLoading(true);
-                // await firebase
-                //     .students()
-                //     .doc()
-                //     .set(data);
 
-                console.log(data);
+                const { number: lastId } = maxBy(data.invoices, 'number');
+                const batch = firebase.db.batch();
+
+                for (const invoice of data.invoices) {
+                    if (invoice.included) {
+                        const ref = firebase.invoice(invoice.number);
+                        batch.set(ref, {
+                            student: invoice.uid,
+                            amount: invoice.amount,
+                            title: data.title,
+                            date: firebase.getTimestamp(),
+                        });
+                    }
+                }
+
+                batch.commit();
+
+                firebase
+                    .config()
+                    .doc('invoice')
+                    .set({ lastId }, { merge: true });
             } catch (error) {
                 console.log(error);
             } finally {

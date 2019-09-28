@@ -13,3 +13,10 @@ export interface Student {
         companyRegNumber: string;
     };
 }
+
+export interface Config {
+    invoice: {
+        defaultAmount: number;
+        lastId: number;
+    };
+}

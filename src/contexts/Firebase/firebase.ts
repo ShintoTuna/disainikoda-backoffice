@@ -60,6 +60,8 @@ class Firebase {
             }
         });
 
+    getTimestamp = () => app.firestore.FieldValue.serverTimestamp();
+
     // *** User API ***
     user = (uid: string) => this.db.doc(`users/${uid}`);
     users = () => this.db.collection('users');
@@ -67,5 +69,12 @@ class Firebase {
     // *** Students API ***
     student = (uid: string) => this.db.doc(`student/${uid}`);
     students = () => this.db.collection('student');
+
+    // *** config API ***
+    config = () => this.db.collection('config');
+
+    // *** config API ***
+    invoice = (id: string) => this.db.doc(`invoice/${id}`);
+    invoices = () => this.db.collection('invoice');
 }
 export default Firebase;
