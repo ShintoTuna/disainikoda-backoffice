@@ -6,6 +6,7 @@ enum Route {
     users = '/users',
     student = '/student',
     invoice = '/invoice',
+    invoices = '/invoices',
 }
 
 export default Route;

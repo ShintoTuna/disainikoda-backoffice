@@ -41,7 +41,7 @@ async function generatePdf(invoice: InvoiceWithNumber, student: Student) {
     const pdfFile = admin
         .storage()
         .bucket()
-        .file(`/invoices/${invoice.number} - ${student.lastName} ${student.firstName}.pdf`);
+        .file(`/invoices/${new Date().getFullYear()}/${invoice.number} - ${student.lastName} ${student.firstName}.pdf`);
 
     createInvoice(doc, student, invoice);
 

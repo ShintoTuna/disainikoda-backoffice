@@ -7,6 +7,7 @@ export interface Student {
     email: string;
     firstName: string;
     lastName: string;
+    phone?: string;
     billing?: {
         companyName: string;
         companyAddress: string;

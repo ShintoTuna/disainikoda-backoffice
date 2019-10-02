@@ -7,6 +7,7 @@ import HomePage from '../../pages/Home';
 import SignUpPage from '../../pages/SignUp';
 import Students from '../../pages/Student';
 import Invoice from '../../pages/Invoice';
+import Invoices from '../../pages/Invoices';
 
 const Router = () => (
     <Switch>
@@ -15,6 +16,7 @@ const Router = () => (
         <Route path={RoutePath.home} component={HomePage} />
         <Route path={RoutePath.student} component={Students} />
         <Route path={RoutePath.invoice} component={Invoice} />
+        <Route path={RoutePath.invoices} component={Invoices} />
         <Redirect exact path="/" to={RoutePath.student} />
     </Switch>
 );

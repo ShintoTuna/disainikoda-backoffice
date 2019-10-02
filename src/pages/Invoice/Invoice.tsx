@@ -1,5 +1,5 @@
 import React, { FC, useState, useContext, useEffect } from 'react';
-import { Classes, Button } from '@blueprintjs/core';
+import { Classes, Button, Card } from '@blueprintjs/core';
 import { Student, Config } from '../../types';
 import { FirebaseContext } from '../../contexts/Firebase';
 import StyledInput from '../../components/Form/StyledInput';
@@ -10,6 +10,7 @@ import FormikDebug from '../../utils/FormikDebug';
 import ConfigContext from '../../contexts/Config';
 import Loader from '../../components/Loader';
 import maxBy from 'lodash/maxBy';
+import { withAuthorization, Condition } from '../../contexts/Session';
 
 interface FormModel {
     invoices: any[];
@@ -40,26 +41,31 @@ const Invoice: FC = () => {
         <Loader loading={!(students.length > 0 && config) || loading}>
             <Formik {...formikArgs}>
                 <Form>
-                    <table className={[Classes.HTML_TABLE, Classes.HTML_TABLE_STRIPED].join(' ')}>
-                        <thead>
-                            <tr>
-                                <th>&nbsp;</th>
-                                <th>Name</th>
-                                <th>Invoice Nr.</th>
-                                <th>Billing Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {students.map((student, i) => (
-                                <InvoiceRow key={i} student={student} index={i} />
-                            ))}
-                        </tbody>
-                    </table>
-                    <StyledInput name="title" label="title" />
-                    <Button loading={submitting} type="submit" intent="primary">
-                        Send invoices
-                    </Button>
-                    <FormikDebug />
+                    <Card style={{ maxWidth: '800px' }}>
+                        <table
+                            className={[Classes.HTML_TABLE, Classes.HTML_TABLE_STRIPED, Classes.INTERACTIVE].join(' ')}
+                            style={{ width: '100%', marginBottom: '16px' }}
+                        >
+                            <thead>
+                                <tr>
+                                    <th>&nbsp;</th>
+                                    <th>Name</th>
+                                    <th>Invoice Nr.</th>
+                                    <th>Billing Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {students.map((student, i) => (
+                                    <InvoiceRow key={i} student={student} index={i} />
+                                ))}
+                            </tbody>
+                        </table>
+                        <StyledInput name="title" label="Invoice subject title" />
+                        <Button loading={submitting} type="submit" intent="primary">
+                            Send invoices
+                        </Button>
+                        <FormikDebug />
+                    </Card>
                 </Form>
             </Formik>
         </Loader>
@@ -152,4 +158,4 @@ function useForm(students: Student[], config: Config) {
     return { formikArgs, submitting: loading };
 }
 
-export default Invoice;
+export default withAuthorization(Condition.isAdmin)(Invoice);

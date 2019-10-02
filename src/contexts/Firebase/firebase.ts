@@ -1,17 +1,20 @@
 import app from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
+import 'firebase/storage';
 import { UserWithRoles } from '../../types';
 
 const config = {
     apiKey: 'AIzaSyBcWr_GvqN-8nAiAvyTgnebYpTO0CTRmog',
     authDomain: 'disainikoda-backoffice.firebaseapp.com',
     projectId: 'disainikoda-backoffice',
+    storageBucket: 'disainikoda-backoffice.appspot.com',
 };
 
 class Firebase {
     auth: app.auth.Auth;
     db: app.firestore.Firestore;
+    storage: app.storage.Storage;
 
     constructor() {
         app.initializeApp(config);
@@ -19,6 +22,7 @@ class Firebase {
 
         this.auth = app.auth();
         this.db = app.firestore();
+        this.storage = app.storage();
     }
 
     // *** Auth API ***

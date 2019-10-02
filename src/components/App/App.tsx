@@ -8,6 +8,7 @@ import { useTheme, Theme } from '../../utils/theme';
 import { Classes, Button } from '@blueprintjs/core';
 import s from './App.module.css';
 import { UserWithRoles } from '../../types';
+import { ConfigContextProvider } from '../../contexts/Config';
 
 const App = () => {
     const savedUser = JSON.parse(localStorage.getItem('authUser') || 'null');
@@ -35,15 +36,17 @@ const App = () => {
             <BrowserRouter>
                 <div className={`${s.mainContainer} ${themeClass} ${!!authUser ? '' : s.noNav}`}>
                     {!!authUser && (
-                        <div className={`${s.mainNav} ${Classes.ELEVATION_0}`}>
-                            <Navigation />
-                            <Button
-                                className={s.themeSwitcher}
-                                minimal
-                                icon={theme === Theme.dark ? 'flash' : 'moon'}
-                                onClick={toggleTheme}
-                            />
-                        </div>
+                        <ConfigContextProvider>
+                            <div className={`${s.mainNav} ${Classes.ELEVATION_0}`}>
+                                <Navigation />
+                                <Button
+                                    className={s.themeSwitcher}
+                                    minimal
+                                    icon={theme === Theme.dark ? 'flash' : 'moon'}
+                                    onClick={toggleTheme}
+                                />
+                            </div>
+                        </ConfigContextProvider>
                     )}
                     <div className={s.mainContent}>
                         <Router />
