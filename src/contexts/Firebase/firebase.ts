@@ -2,7 +2,7 @@ import app from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
 import 'firebase/storage';
-import { UserWithRoles } from '../../types';
+import { UserWithRoles, Config } from '../../types';
 
 const config = {
     apiKey: 'AIzaSyBcWr_GvqN-8nAiAvyTgnebYpTO0CTRmog',
@@ -15,6 +15,7 @@ class Firebase {
     auth: app.auth.Auth;
     db: app.firestore.Firestore;
     storage: app.storage.Storage;
+    config: Config | null = null;
 
     constructor() {
         app.initializeApp(config);
@@ -40,7 +41,7 @@ class Firebase {
     doPasswordUpdate = (password: string) => this.auth.currentUser && this.auth.currentUser.updatePassword(password);
 
     // *** Merge Auth and DB User API *** //
-    onAuthUserListener = (next: (u: UserWithRoles) => void, fallback: () => void) =>
+    onAuthUserListener = (next: (u: UserWithRoles) => void, fallback?: () => void) =>
         this.auth.onAuthStateChanged((authUser) => {
             if (authUser) {
                 this.user(authUser.uid)
@@ -57,14 +58,31 @@ class Firebase {
                             email: authUser.email,
                             ...dbUser,
                         };
+
                         next(userWithRoles as UserWithRoles);
                     });
-            } else {
+
+                this.db.collection('config').onSnapshot((snapshot) => {
+                    let agg = {};
+
+                    snapshot.forEach((doc) => {
+                        agg = { ...agg, ...{ [doc.id]: doc.data() } };
+                    });
+                    this.config = agg as Config;
+                });
+            } else if (fallback) {
+                this.config = null;
                 fallback();
             }
         });
 
     getTimestamp = () => app.firestore.FieldValue.serverTimestamp();
+
+    setNewInvoiceId = (lastId: number) =>
+        this.db
+            .collection('config')
+            .doc('invoice')
+            .set({ lastId }, { merge: true });
 
     // *** User API ***
     user = (uid: string) => this.db.doc(`users/${uid}`);
@@ -74,10 +92,7 @@ class Firebase {
     student = (uid: string) => this.db.doc(`student/${uid}`);
     students = () => this.db.collection('student');
 
-    // *** config API ***
-    config = () => this.db.collection('config');
-
-    // *** config API ***
+    // *** Invoice API ***
     invoice = (id: string) => this.db.doc(`invoice/${id}`);
     invoices = () => this.db.collection('invoice');
 }

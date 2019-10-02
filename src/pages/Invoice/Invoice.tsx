@@ -6,8 +6,6 @@ import StyledInput from '../../components/Form/StyledInput';
 import { Form, Formik, FormikConfig } from 'formik';
 import * as Yup from 'yup';
 import StyledCheckbox from '../../components/Form/StyledCheckbox';
-import FormikDebug from '../../utils/FormikDebug';
-import ConfigContext from '../../contexts/Config';
 import Loader from '../../components/Loader';
 import maxBy from 'lodash/maxBy';
 import { withAuthorization, Condition } from '../../contexts/Session';
@@ -21,8 +19,7 @@ const Invoice: FC = () => {
     const [loading, setLoading] = useState(true);
     const [students, setStudents] = useState<Student[]>([]);
     const firebase = useContext(FirebaseContext);
-    const config = useContext(ConfigContext);
-    const { formikArgs, submitting } = useForm(students, config as Config);
+    const { formikArgs, submitting } = useForm(students, firebase.config as Config);
 
     useEffect(
         () =>
@@ -38,10 +35,10 @@ const Invoice: FC = () => {
     );
 
     return (
-        <Loader loading={!(students.length > 0 && config) || loading}>
+        <Loader loading={!(students.length > 0 && firebase.config) || loading}>
             <Formik {...formikArgs}>
                 <Form>
-                    <Card style={{ maxWidth: '800px' }}>
+                    <Card>
                         <table
                             className={[Classes.HTML_TABLE, Classes.HTML_TABLE_STRIPED, Classes.INTERACTIVE].join(' ')}
                             style={{ width: '100%', marginBottom: '16px' }}
@@ -64,7 +61,6 @@ const Invoice: FC = () => {
                         <Button loading={submitting} type="submit" intent="primary">
                             Send invoices
                         </Button>
-                        <FormikDebug />
                     </Card>
                 </Form>
             </Formik>
@@ -143,10 +139,7 @@ function useForm(students: Student[], config: Config) {
 
                 batch.commit();
 
-                firebase
-                    .config()
-                    .doc('invoice')
-                    .set({ lastId }, { merge: true });
+                firebase.setNewInvoiceId(lastId);
             } catch (error) {
                 console.log(error);
             } finally {

@@ -7,7 +7,6 @@ import { FirebaseContext } from '../../contexts/Firebase';
 import Route from '../../constants/routes';
 import { withRouter, RouteComponentProps } from 'react-router-dom';
 import * as Yup from 'yup';
-import FormikDebug from '../../utils/FormikDebug';
 
 interface FormModel {
     email: string;
@@ -65,7 +64,6 @@ const SignIn: FC<Props> = ({ history }) => {
                         <Button type="submit" intent="primary" loading={loading}>
                             Sign In
                         </Button>
-                        <FormikDebug />
                     </Form>
                 </Formik>
             </Card>

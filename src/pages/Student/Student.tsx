@@ -26,7 +26,7 @@ const Students: FC = () => {
     );
 
     return (
-        <Card style={{ maxWidth: '800px' }}>
+        <Card>
             <Button onClick={() => setOpen(true)} style={{ marginBottom: '16px' }}>
                 Add new
             </Button>

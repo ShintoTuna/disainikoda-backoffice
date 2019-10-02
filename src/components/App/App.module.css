@@ -1,26 +1,13 @@
-.mainContainer {
-    display: grid;
-    grid-template-columns: 1fr 10fr;
+.mainContainer:global(.bp3-dark) {
+    background-color: #394b59;
     min-height: 100vh;
     height: 100%;
 }
 
-.mainContainer.noNav {
-    grid-template-columns: 1fr;
-}
-
-.mainContainer:global(.bp3-dark) {
-    background-color: #394b59;
-}
-
-.mainNav {}
-
-:global(.bp3-dark) .mainNav {
-    background-color: #30404d;
-}
-
 .mainContent {
-    padding: 16px;
+    padding: 32px;
+    margin: 0 auto;
+    max-width: 1200px;
 }
 
 .themeSwitcher {
