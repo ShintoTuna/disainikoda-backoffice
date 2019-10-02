@@ -15,7 +15,7 @@ const Router = () => (
         <Route path={RoutePath.home} component={HomePage} />
         <Route path={RoutePath.student} component={Students} />
         <Route path={RoutePath.invoice} component={Invoice} />
-        <Redirect exact path="/" to="/actions" />
+        <Redirect exact path="/" to={RoutePath.student} />
     </Switch>
 );
 

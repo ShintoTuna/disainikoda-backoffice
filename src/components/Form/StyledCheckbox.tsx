@@ -6,10 +6,11 @@ interface Props {
     name: string;
     label?: string;
     onChange?: (e: React.ChangeEvent<any>) => void;
+    disabled?: boolean;
 }
 
 const StyledCheckbox: FC<Props> = (props) => {
-    const { name, label, onChange: onChangeOuter } = props;
+    const { name, label, onChange: onChangeOuter, disabled = false } = props;
 
     return (
         <Field
@@ -18,6 +19,7 @@ const StyledCheckbox: FC<Props> = (props) => {
                 <Checkbox
                     {...field}
                     onChange={onChangeOuter ? onChangeOuter : field.onChange}
+                    disabled={disabled}
                     label={label}
                     checked={field.value}
                 />

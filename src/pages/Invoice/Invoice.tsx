@@ -56,7 +56,7 @@ const Invoice: FC = () => {
                         </tbody>
                     </table>
                     <StyledInput name="title" label="title" />
-                    <Button loading={submitting} type="submit">
+                    <Button loading={submitting} type="submit" intent="primary">
                         Send invoices
                     </Button>
                     <FormikDebug />
@@ -73,11 +73,11 @@ const InvoiceRow: FC<{ student: Student; index: number }> = ({ student, index })
     return (
         <tr>
             <td>
-                <StyledCheckbox name={`invoices.${index}.included`} />
+                <StyledCheckbox name={`invoices.${index}.included`} disabled />
             </td>
             <td>{`${student.lastName} ${student.firstName}${billingName()}`}</td>
             <td>
-                <StyledInput type="number" name={`invoices.${index}.number`} />
+                <StyledInput type="number" disabled name={`invoices.${index}.number`} />
             </td>
             <td>
                 <StyledInput type="number" name={`invoices.${index}.amount`} />
@@ -111,6 +111,12 @@ function useForm(students: Student[], config: Config) {
             invoices: config ? initialValues() : [],
         },
         onSubmit: async (data) => {
+            const ask = window.confirm('Send invoices?');
+
+            if (!ask) {
+                return;
+            }
+
             try {
                 setLoading(true);
 

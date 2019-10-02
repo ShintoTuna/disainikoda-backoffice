@@ -11,10 +11,11 @@ interface Props {
     required?: boolean;
     type?: string;
     inline?: boolean;
+    disabled?: boolean;
 }
 
 const StyledInput: FC<Props> = (props) => {
-    const { name, label, placeholder, required = false, type = 'text', inline = false } = props;
+    const { name, label, placeholder, required = false, type = 'text', inline = false, disabled = false } = props;
 
     return (
         <Field
@@ -37,6 +38,7 @@ const StyledInput: FC<Props> = (props) => {
                             type={type}
                             id={`text-input-${name}`}
                             placeholder={placeholder}
+                            disabled={disabled}
                             intent={error ? 'danger' : 'none'}
                         />
                     </FormGroup>
