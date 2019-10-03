@@ -5,7 +5,7 @@ import React, { FC } from 'react';
 interface Props {
     name: string;
     label?: string;
-    onChange?: (e: React.ChangeEvent<any>) => void;
+    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     disabled?: boolean;
 }
 
