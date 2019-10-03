@@ -19,7 +19,8 @@ export const invoiceCreation = functions.firestore.document('invoice/{id}').onCr
 
     try {
         const student = await getStudent(invoice.student);
-        const filename = `${invoice.number} - ${student.lastName} ${student.firstName}.pdf`;
+        const recipientName = getRecipientName(student);
+        const filename = `${invoice.number} - ${recipientName}.pdf`;
 
         console.log(`Creating Invoice nr ${number}`);
 
@@ -30,9 +31,11 @@ export const invoiceCreation = functions.firestore.document('invoice/{id}').onCr
         const stream = pdfFile.createWriteStream();
 
         const pdf = await generatePdf(stream, invoice, student);
+
         console.log(`PDF created: "${filename}"`);
 
         await sendEmail(pdf, student, invoice);
+
         console.log(`Email sent with attachment: "${filename}"`);
     } catch (e) {
         console.log(JSON.stringify(e, null, 2));
@@ -84,6 +87,7 @@ function generatePdf(stream: NodeJS.WritableStream, invoice: InvoiceWithNumber, 
 
 function sendEmail(buffers: Buffer[], student: Student, invoice: InvoiceWithNumber) {
     const pdfData = Buffer.concat(buffers);
+    const recipientName = getRecipientName(student);
 
     const msg = {
         personalizations: [
@@ -109,11 +113,17 @@ function sendEmail(buffers: Buffer[], student: Student, invoice: InvoiceWithNumb
             {
                 type: 'application/pdf',
                 disposition: 'attachment',
-                filename: `Arve nr ${invoice.number} - ${student.lastName} ${student.firstName}.pdf`,
+                filename: `Arve nr ${invoice.number} - ${recipientName}.pdf`,
                 content: pdfData.toString('base64'),
             },
         ],
     };
 
     return sendGrid.send(msg);
+}
+
+function getRecipientName(student: Student) {
+    return student.billing && student.billing.companyName
+        ? student.billing.companyName
+        : `${student.lastName} ${student.firstName}`;
 }

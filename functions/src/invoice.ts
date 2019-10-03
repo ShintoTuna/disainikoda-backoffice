@@ -65,7 +65,7 @@ function studentDetails(doc: PDFKit.PDFDocument, student: Student) {
     if (student.billing && student.billing.companyName) {
         doc.text(student.billing.companyName, sideMargin, topMargin)
             .text(student.billing.companyAddress, sideMargin, topMargin + lineHeight)
-            .text(student.billing.companyRegNumber, sideMargin, topMargin + lineHeight * 2);
+            .text(`Reg. ${student.billing.companyRegNumber}`, sideMargin, topMargin + lineHeight * 2);
     } else {
         doc.text(`${student.firstName} ${student.lastName}`, sideMargin, topMargin).text(
             student.email,

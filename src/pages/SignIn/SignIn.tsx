@@ -59,7 +59,7 @@ const SignIn: FC<Props> = ({ history }) => {
                     <Form>
                         <div>
                             <StyledInput name="email" label="Email" />
-                            <StyledInput name="password" type="password" label="password" />
+                            <StyledInput name="password" type="password" label="Password" />
                         </div>
                         <Button type="submit" intent="primary" loading={loading}>
                             Sign In
