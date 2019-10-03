@@ -58,8 +58,8 @@ const SignIn: FC<Props> = ({ history }) => {
                 <Formik {...args}>
                     <Form>
                         <div>
-                            <StyledInput name="email" />
-                            <StyledInput name="password" type="password" />
+                            <StyledInput name="email" label="Email" />
+                            <StyledInput name="password" type="password" label="password" />
                         </div>
                         <Button type="submit" intent="primary" loading={loading}>
                             Sign In

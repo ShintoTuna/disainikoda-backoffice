@@ -47,6 +47,7 @@ const Invoice: FC = () => {
                                 <tr>
                                     <th>&nbsp;</th>
                                     <th>Name</th>
+                                    <th>Email</th>
                                     <th>Invoice Nr.</th>
                                     <th>Billing Amount</th>
                                 </tr>
@@ -78,6 +79,7 @@ const InvoiceRow: FC<{ student: Student; index: number }> = ({ student, index })
                 <StyledCheckbox name={`invoices.${index}.included`} disabled />
             </td>
             <td>{`${student.lastName} ${student.firstName}${billingName()}`}</td>
+            <td>{student.email}</td>
             <td>
                 <StyledInput type="number" disabled name={`invoices.${index}.number`} />
             </td>

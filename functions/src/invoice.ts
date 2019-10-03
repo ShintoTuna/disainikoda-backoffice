@@ -62,7 +62,7 @@ function studentDetails(doc: PDFKit.PDFDocument, student: Student) {
         .font('Helvetica')
         .fontSize(fontSizeGeneral);
 
-    if (student.billing) {
+    if (student.billing && student.billing.companyName) {
         doc.text(student.billing.companyName, sideMargin, topMargin)
             .text(student.billing.companyAddress, sideMargin, topMargin + lineHeight)
             .text(student.billing.companyRegNumber, sideMargin, topMargin + lineHeight * 2);

@@ -1,21 +1,44 @@
+/* eslint-disable @typescript-eslint/camelcase */
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import * as PDFDocument from 'pdfkit';
-import * as nodemailer from 'nodemailer';
 import { Invoice, Student, InvoiceWithNumber } from './types';
 import createInvoice from './invoice';
+import * as sendGrid from '@sendgrid/mail';
 
+const API_KEY = functions.config().sendgrid.key;
+const TEMPLATE_ID = functions.config().sendgrid.template;
+
+sendGrid.setApiKey(API_KEY);
 admin.initializeApp();
 
 export const invoiceCreation = functions.firestore.document('invoice/{id}').onCreate(async (snapshot, context) => {
-    const invoice = snapshot.data() as Invoice;
+    const data = snapshot.data() as Invoice;
     const number = context.params.id;
-    const student = await getStudent(invoice.student);
-    const invoiceWithNumber: InvoiceWithNumber = { ...invoice, number };
+    const invoice: InvoiceWithNumber = { ...data, number };
 
-    console.log(`Creating Invoice nr ${number}`);
+    try {
+        const student = await getStudent(invoice.student);
+        const filename = `${invoice.number} - ${student.lastName} ${student.firstName}.pdf`;
 
-    return generatePdf(invoiceWithNumber, student);
+        console.log(`Creating Invoice nr ${number}`);
+
+        const pdfFile = admin
+            .storage()
+            .bucket()
+            .file(`/invoices/${new Date().getFullYear()}/${filename}`);
+        const stream = pdfFile.createWriteStream();
+
+        const pdf = await generatePdf(stream, invoice, student);
+        console.log(`PDF created: "${filename}"`);
+
+        await sendEmail(pdf, student, invoice);
+        console.log(`Email sent with attachment: "${filename}"`);
+    } catch (e) {
+        console.log(JSON.stringify(e, null, 2));
+    }
+
+    return { success: true };
 });
 
 function getStudent(uid: string) {
@@ -35,26 +58,20 @@ function getStudent(uid: string) {
     });
 }
 
-async function generatePdf(invoice: InvoiceWithNumber, student: Student) {
+function generatePdf(stream: NodeJS.WritableStream, invoice: InvoiceWithNumber, student: Student) {
     const buffers: Buffer[] = [];
     const doc = new PDFDocument({ size: 'A4', margin: 50 });
-    const pdfFile = admin
-        .storage()
-        .bucket()
-        .file(`/invoices/${new Date().getFullYear()}/${invoice.number} - ${student.lastName} ${student.firstName}.pdf`);
+
+    doc.pipe(stream);
 
     createInvoice(doc, student, invoice);
 
-    doc.pipe(pdfFile.createWriteStream());
-
     const bufferPromise = new Promise<Buffer[]>((resolve, reject) => {
         doc.on('end', () => {
-            console.log(`Invoice ${invoice.number} created`);
             resolve(buffers);
         });
 
         doc.on('error', (error) => {
-            console.log(error);
             reject(error);
         });
     });
@@ -62,39 +79,41 @@ async function generatePdf(invoice: InvoiceWithNumber, student: Student) {
     doc.on('data', (data) => buffers.push(data));
     doc.end();
 
-    const resolvedBuffers = await bufferPromise;
-
-    return sendEmail(resolvedBuffers, student, invoice.number);
+    return bufferPromise;
 }
 
-async function sendEmail(buffers: Buffer[], student: Student, invoiceNumber: number) {
+function sendEmail(buffers: Buffer[], student: Student, invoice: InvoiceWithNumber) {
     const pdfData = Buffer.concat(buffers);
 
-    const mailTransport = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: functions.config().mailer.email,
-            pass: functions.config().mailer.pass,
+    const msg = {
+        personalizations: [
+            {
+                to: [
+                    {
+                        email: student.email,
+                        name: `${student.firstName} ${student.lastName}`,
+                    },
+                ],
+                dynamic_template_data: {
+                    invoiceNumber: invoice.number,
+                    subject: `Arve nr ${invoice.number}`,
+                },
+            },
+        ],
+        from: {
+            email: functions.config().mailer.email,
+            name: 'Disainikoda',
         },
-    });
-
-    const mailOptions = {
-        from: 'Disainikoda <from@example.com>',
-        to: student.email,
-        subject: `Arve nr ${invoiceNumber}`,
-        html: '<p>Your invoice</p>',
+        template_id: TEMPLATE_ID,
         attachments: [
             {
-                filename: `Arve nr ${invoiceNumber} - ${student.lastName} ${student.firstName}.pdf`,
-                content: pdfData,
+                type: 'application/pdf',
+                disposition: 'attachment',
+                filename: `Arve nr ${invoice.number} - ${student.lastName} ${student.firstName}.pdf`,
+                content: pdfData.toString('base64'),
             },
         ],
     };
 
-    try {
-        await mailTransport.sendMail(mailOptions);
-        console.log(`Mail sent to ${student.email}`);
-    } catch (error) {
-        console.error(error);
-    }
+    return sendGrid.send(msg);
 }
