@@ -9,58 +9,18 @@ import { Student } from '../../types';
 interface Props {
     isOpen: boolean;
     close: () => void;
+    selected: Student | null;
 }
 
-type FormModel = Omit<Student, 'uid'>;
-
-const validationSchema = () =>
-    Yup.object().shape({
-        firstName: Yup.string().required(),
-        lastName: Yup.string().required(),
-        email: Yup.string()
-            .email()
-            .required(),
-        billing: Yup.object().shape({
-            companyName: Yup.string().max(255),
-            companyAddress: Yup.string().max(255),
-            companyRegNumber: Yup.string().max(255),
-        }),
-    });
-
-const StudentsForm: FC<Props> = ({ isOpen, close }) => {
-    const [loading, setLoading] = useState(false);
-    const firebase = useContext(FirebaseContext);
-    const args: FormikConfig<FormModel> = {
-        validationSchema,
-        initialValues: {
-            firstName: '',
-            lastName: '',
-            email: '',
-            phone: '',
-            billing: { companyAddress: '', companyName: '', companyRegNumber: '' },
-        },
-        onSubmit: async (data) => {
-            try {
-                setLoading(true);
-                await firebase
-                    .students()
-                    .doc()
-                    .set(data);
-
-                setLoading(false);
-                close();
-            } catch (error) {
-                console.log(error);
-                setLoading(false);
-            }
-        },
-    };
+const StudentsForm: FC<Props> = ({ isOpen, close, selected }) => {
+    const { args, loading } = useForm(selected, close);
 
     return (
         <Dialog isOpen={isOpen}>
             <Formik {...args}>
                 <Form>
                     <div className={Classes.DIALOG_BODY}>
+                        <StyledInput type="hidden" name="uid" />
                         <StyledInput name="firstName" label="First Name" />
                         <StyledInput name="lastName" label="Last Name" />
                         <StyledInput name="email" label="Email" />
@@ -82,5 +42,57 @@ const StudentsForm: FC<Props> = ({ isOpen, close }) => {
         </Dialog>
     );
 };
+
+type FormModel = Student;
+
+function useForm(selected: Props['selected'], close: Props['close']) {
+    const [loading, setLoading] = useState(false);
+    const firebase = useContext(FirebaseContext);
+    const defaults = {
+        uid: '',
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        billing: { companyAddress: '', companyName: '', companyRegNumber: '' },
+    };
+
+    const args: FormikConfig<FormModel> = {
+        validationSchema: Yup.object().shape({
+            firstName: Yup.string().required(),
+            lastName: Yup.string().required(),
+            email: Yup.string()
+                .email()
+                .required(),
+            billing: Yup.object().shape({
+                companyName: Yup.string().max(255),
+                companyAddress: Yup.string().max(255),
+                companyRegNumber: Yup.string().max(255),
+            }),
+        }),
+        initialValues: selected ? { ...defaults, ...selected } : defaults,
+        onSubmit: async (data) => {
+            try {
+                setLoading(true);
+                if (data.uid.length > 0) {
+                    await firebase.student(data.uid).set(data);
+                } else {
+                    await firebase
+                        .students()
+                        .doc()
+                        .set(data);
+                }
+
+                setLoading(false);
+                close();
+            } catch (error) {
+                console.log(error);
+                setLoading(false);
+            }
+        },
+    };
+
+    return { args, loading };
+}
 
 export default StudentsForm;

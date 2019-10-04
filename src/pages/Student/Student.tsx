@@ -1,4 +1,4 @@
-import React, { FC, useState, useContext, useEffect } from 'react';
+import React, { FC, useState, useContext, useEffect, Dispatch, SetStateAction } from 'react';
 import { Student } from '../../types';
 import { FirebaseContext } from '../../contexts/Firebase';
 import { Classes, Button, Card } from '@blueprintjs/core';
@@ -11,6 +11,14 @@ const Students: FC = () => {
     const [loading, setLoading] = useState(true);
     const [students, setStudents] = useState<Student[]>([]);
     const firebase = useContext(FirebaseContext);
+    const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+
+    const deleteStudent = async (student: Student) => {
+        const approval = window.confirm(`Remove ${student.lastName} ${student.firstName}`);
+        if (approval) {
+            await firebase.student(student.uid).delete();
+        }
+    };
 
     useEffect(
         () =>
@@ -27,39 +35,55 @@ const Students: FC = () => {
 
     return (
         <Card>
-            <Button onClick={() => setOpen(true)} style={{ marginBottom: '16px' }}>
+            <Button
+                onClick={() => {
+                    setOpen(true);
+                    setSelectedStudent(null);
+                }}
+                style={{ marginBottom: '16px' }}
+            >
                 Add new
             </Button>
-            <StudentsForm isOpen={isOpen} close={() => setOpen(false)} />
-            <Loader loading={loading}>{students.length > 0 && <StudentsTable students={students} />}</Loader>
+            <StudentsForm isOpen={isOpen} close={() => setOpen(false)} selected={selectedStudent} />
+            <Loader loading={loading}>
+                {students.length > 0 && (
+                    <table className={[Classes.HTML_TABLE, Classes.INTERACTIVE].join(' ')} style={{ width: '100%' }}>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Billing</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {students.map((student, i) => (
+                                <StudentRow
+                                    setOpen={setOpen}
+                                    key={i}
+                                    student={student}
+                                    setSelected={() => setSelectedStudent(student)}
+                                    deleteStudent={() => deleteStudent(student)}
+                                    index={i + 1}
+                                />
+                            ))}
+                        </tbody>
+                    </table>
+                )}
+            </Loader>
         </Card>
     );
 };
 
-const StudentsTable: FC<{ students: Student[] }> = ({ students }) => {
-    return (
-        <table
-            className={[Classes.HTML_TABLE, Classes.HTML_TABLE_STRIPED, Classes.INTERACTIVE].join(' ')}
-            style={{ width: '100%' }}
-        >
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Billing</th>
-                </tr>
-            </thead>
-            <tbody>
-                {students.map((student, i) => (
-                    <StudentRow key={i} student={student} />
-                ))}
-            </tbody>
-        </table>
-    );
-};
-
-const StudentRow: FC<{ student: Student }> = ({ student }) => {
+const StudentRow: FC<{
+    student: Student;
+    setOpen: Dispatch<SetStateAction<boolean>>;
+    setSelected: () => void;
+    deleteStudent: () => void;
+    index: number;
+}> = ({ student, setOpen, setSelected, index, deleteStudent }) => {
     const billingInformation = () => {
         if (student.billing) {
             return (
@@ -75,12 +99,26 @@ const StudentRow: FC<{ student: Student }> = ({ student }) => {
 
         return '';
     };
+
     return (
         <tr>
+            <td>{index}</td>
             <td>{`${student.lastName} ${student.firstName}`}</td>
             <td>{student.email}</td>
             <td>{student.phone}</td>
             <td>{billingInformation()}</td>
+            <td>
+                <Button
+                    icon="edit"
+                    style={{ marginRight: '8px' }}
+                    onClick={() => {
+                        setOpen(true);
+                        setSelected();
+                    }}
+                />
+
+                <Button icon="trash" onClick={() => deleteStudent()} />
+            </td>
         </tr>
     );
 };

@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "disainikoda-backoffice"
+    "default": "disainikoda-backoffice",
+    "dev": "disainikoda-backoffice-dev"
   }
 }
