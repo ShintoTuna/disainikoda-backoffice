@@ -9,14 +9,19 @@ export enum Theme {
 export const useTheme = () => {
     const [theme, setTheme] = useState(() => {
         const savedTheme = window.localStorage.getItem('om-theme');
+        const initialTheme = savedTheme ? Theme[savedTheme as Theme] : Theme.dark;
 
-        return savedTheme ? Theme[savedTheme as Theme] : Theme.dark;
+        document.body.classList.add(initialTheme);
+
+        return initialTheme;
     });
 
     const toggleTheme = () => {
+        document.body.classList.remove(theme);
         const newTheme = theme === Theme.dark ? Theme.light : Theme.dark;
 
         setTheme(newTheme);
+        document.body.classList.add(newTheme);
         window.localStorage.setItem('om-theme', newTheme);
     };
 
