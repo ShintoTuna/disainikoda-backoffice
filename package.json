@@ -20,7 +20,7 @@
     "firebase": "^6.6.2",
     "firebase-tools": "^7.3.2",
     "formik": "^1.5.8",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "normalize.css": "^8.0.1",
     "prettier": "^1.18.2",
     "react": "^16.9.0",
