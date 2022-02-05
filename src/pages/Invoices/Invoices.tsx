@@ -1,7 +1,6 @@
 import React, { FC, useEffect, useContext, useCallback, useState, ChangeEvent } from 'react';
 import { FirebaseContext } from '../../contexts/Firebase';
-import { Icon, Card, Classes, InputGroup } from '@blueprintjs/core';
-import { Tab, Tabs } from '@blueprintjs/core';
+import { Icon, Card, Classes, InputGroup, HTMLSelect } from '@blueprintjs/core';
 import Loader from '../../components/Loader';
 import { withAuthorization, Condition } from '../../contexts/Session';
 
@@ -12,12 +11,16 @@ interface File {
     downloadUrl: string;
 }
 
+const START_YEAR = 2018;
+
 const Invoices: FC = () => {
     const firebase = useContext(FirebaseContext);
     const [files, setFiles] = useState<File[]>([]);
-    const [year, setYear] = useState(2019);
+    const currentYear = new Date().getFullYear();
+    const [year, setYear] = useState(currentYear);
     const [loading, setLoading] = useState(false);
     const [filterStr, setFilterStr] = useState('');
+    const options = Array.from({ length: currentYear - START_YEAR + 1 }, (_, i) => i + START_YEAR);
     const filteredFiles = files
         .filter((file) => file.name.toLowerCase().includes(filterStr.toLowerCase()))
         .sort((a, b) => new Date(b.timeCreated).getTime() - new Date(a.timeCreated).getTime());
@@ -34,11 +37,17 @@ const Invoices: FC = () => {
 
         res.items.forEach(async (item) => {
             const downloadUrl = await item.getDownloadURL();
-            const { name, timeCreated, size } = await item.getMetadata();
+            const file = await item.getMetadata();
+            const { name, timeCreated, size } = file;
+            console.log(file);
             setLoading(false);
             setFiles((state) => [...state, { name, timeCreated, size, downloadUrl }]);
         });
     }, [firebase.storage, year]);
+
+    const handleChangeYear = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setYear(parseInt(e.target.value));
+    };
 
     useEffect(() => {
         setFiles([]);
@@ -47,25 +56,27 @@ const Invoices: FC = () => {
 
     return (
         <div>
-            <Tabs
-                animate
-                id="navbar"
-                large={true}
-                onChange={(s) => setYear(parseInt(s.toString()))}
-                selectedTabId={year}
+            <div
+                style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    paddingRight: '8px',
+                    paddingLeft: '8px',
+                }}
             >
-                <Tab id="2018" title="2018" />
-                <Tab id="2019" title="2019" />
-                <Tab id="2020" title="2020" />
-                <Tabs.Expander />
-                <InputGroup
-                    className={Classes.FILL}
-                    type="text"
-                    placeholder="Filter..."
-                    style={{ width: '200px' }}
-                    onChange={({ target }: ChangeEvent<HTMLInputElement>) => setFilterStr(target.value)}
-                />
-            </Tabs>
+                <HTMLSelect value={year} onChange={handleChangeYear} options={options} />
+                <div>
+                    <InputGroup
+                        className={Classes.FILL}
+                        type="text"
+                        placeholder="Filter..."
+                        style={{ width: '200px' }}
+                        onChange={({ target }: ChangeEvent<HTMLInputElement>) => setFilterStr(target.value)}
+                        leftIcon={<Icon icon="search" />}
+                    />
+                </div>
+            </div>
             <Loader loading={loading}>
                 <div style={{ marginTop: '16px' }}>
                     {files.length > 0 ? (
@@ -81,16 +92,11 @@ const Invoices: FC = () => {
 
 const FileThumb: FC<{ file: File }> = ({ file }) => {
     return (
-        <a href={file.downloadUrl}>
-            <Card
-                style={{ display: 'inline-block', margin: '8px', textAlign: 'center' }}
-                className={Classes.INTERACTIVE}
-            >
-                <Icon icon="document" iconSize={50} />
-                <div style={{ marginTop: '12px' }}>{file.name}</div>
-                <div style={{ marginTop: '4px', fontSize: '0.8em', color: 'gray' }}>
-                    {new Date(file.timeCreated).toDateString()}
-                </div>
+        <a href={file.downloadUrl} style={{ textDecoration: 'none' }}>
+            <Card style={{ display: 'block', margin: '8px' }} className={Classes.INTERACTIVE}>
+                <Icon icon="document" iconSize={24} style={{ paddingRight: '16px' }} />
+                <span style={{ paddingRight: '16px' }}>{file.name}</span>
+                <span style={{ fontSize: '0.8em', color: 'gray' }}>{new Date(file.timeCreated).toDateString()}</span>
             </Card>
         </a>
     );
