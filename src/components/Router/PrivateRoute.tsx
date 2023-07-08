@@ -4,30 +4,30 @@ import { AuthUserContext, Condition } from '../../contexts/Session';
 import RoutePath from '../../constants/routes';
 
 interface OwnProps {
-    condition: Condition;
+  condition: Condition;
 }
 
 type Props = RouteProps & OwnProps;
 
 const PrivateRoute: FC<Props> = ({ condition, ...rest }) => {
-    const isAllowed = useAuthorization(condition);
+  const isAllowed = useAuthorization(condition);
 
-    return !isAllowed ? (
-        <Route {...rest} component={() => <Redirect to={RoutePath.signIn} />} render={undefined} />
-    ) : (
-        <Route {...rest} />
-    );
+  return !isAllowed ? (
+    <Route {...rest} component={() => <Redirect to={RoutePath.signIn} />} render={undefined} />
+  ) : (
+    <Route {...rest} />
+  );
 };
 
 function useAuthorization(condition: Condition) {
-    const authUser = useContext(AuthUserContext);
+  const authUser = useContext(AuthUserContext);
 
-    switch (condition) {
-        case Condition.isLoggedIn:
-            return !!authUser;
-        default:
-            throw new Error('No auth condition provided');
-    }
+  switch (condition) {
+    case Condition.isLoggedIn:
+      return !!authUser;
+    default:
+      throw new Error('No auth condition provided');
+  }
 }
 
 export default PrivateRoute;

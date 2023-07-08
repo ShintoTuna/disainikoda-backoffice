@@ -1,23 +1,31 @@
 export interface UserWithRoles extends Omit<firebase.User, 'password'> {
-    roles: { [key: string]: string };
+  roles: { [key: string]: string };
 }
 
 export interface Student {
-    uid: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    phone?: string;
-    billing?: {
-        companyName: string;
-        companyAddress: string;
-        companyRegNumber: string;
-    };
+  uid: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  billing?: {
+    companyName: string;
+    companyAddress: string;
+    companyRegNumber: string;
+  };
 }
 
 export interface Config {
-    invoice: {
-        defaultAmount: number;
-        lastId: number;
-    };
+  invoice: {
+    defaultAmount: number;
+    lastId: number;
+  };
 }
+
+export interface Group {
+  name: string;
+  archived: boolean;
+  uid: string;
+}
+
+export type GroupStudent = Omit<Student, 'email' | 'phone'> & { groupUid: string };

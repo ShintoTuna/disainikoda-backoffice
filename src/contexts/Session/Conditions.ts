@@ -1,6 +1,6 @@
 enum Condition {
-    isLoggedIn,
-    isAdmin,
+  isLoggedIn,
+  isAdmin,
 }
 
 export default Condition;
