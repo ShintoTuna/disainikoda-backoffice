@@ -10,6 +10,7 @@ import maxBy from 'lodash/maxBy';
 import { withAuthorization, Condition } from '../../contexts/Session';
 import ClientPicker from './ClientPicker';
 import GroupPicker from '../../pages/Invoice/GroupPicker';
+import { getName } from '../../utils/student';
 
 interface FormModel {
   invoices: any[];
@@ -22,19 +23,18 @@ const Invoice: FC = () => {
   const firebase = useContext(FirebaseContext);
   const { formikArgs, submitting } = useForm(students, firebase.config as Config);
 
-  const handleAddStudent = (newStudents: Student[]) => {
-    setStudents((currentStudents) => {
-      const ids = new Set(currentStudents.map((obj) => obj.uid));
-      const uniqueObjects = newStudents.filter((obj) => !ids.has(obj.uid));
+  const handleAddStudent = (newStudent: Student) => {
+    if (window.confirm(`Add ${getName(newStudent)} to invoice?`)) {
+      setStudents((currentStudents) => {
+        const isAlreadyAdded = currentStudents.find((student) => student.uid === newStudent.uid);
 
-      return [...currentStudents, ...uniqueObjects];
-    });
+        return !!isAlreadyAdded ? currentStudents : [...currentStudents, newStudent];
+      });
+    }
   };
 
   const handleAddGroupOfStudents = (newStudents: Student[]) => {
-    if (window.confirm('Are you sure you want to add all students from this group?')) {
-      setStudents(newStudents);
-    }
+    setStudents(newStudents);
   };
 
   const handleRemoveStudent = (index: number) => {
@@ -51,35 +51,41 @@ const Invoice: FC = () => {
       <Formik {...formikArgs}>
         <Form>
           <Card>
-            <GroupPicker addStudents={handleAddGroupOfStudents} />
-            <ClientPicker addStudents={handleAddStudent} />
-            {students.length > 0 && (
-              <>
-                <table
-                  className={[Classes.HTML_TABLE, Classes.HTML_TABLE_STRIPED, Classes.INTERACTIVE].join(' ')}
-                  style={{ width: '100%', marginBottom: '16px' }}
-                >
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Email</th>
-                      <th>Invoice Nr.</th>
-                      <th>Billing Amount</th>
-                      <th>&nbsp;</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {students.map((student, i) => (
-                      <InvoiceRow key={i} student={student} index={i} removeStudent={handleRemoveStudent} />
-                    ))}
-                  </tbody>
-                </table>
-                <StyledInput name="title" label="Invoice subject title" />
-                <Button loading={submitting} type="submit" intent="primary">
-                  Send invoices
-                </Button>
-              </>
-            )}
+            <div style={{ display: 'flex', flexDirection: 'row' }}>
+              <div>
+                <GroupPicker addStudents={handleAddGroupOfStudents} />
+                <ClientPicker addStudents={handleAddStudent} />
+              </div>
+              <div style={{ flex: 1, paddingLeft: '20px' }}>
+                {students.length > 0 && (
+                  <>
+                    <table
+                      className={[Classes.HTML_TABLE, Classes.HTML_TABLE_STRIPED, Classes.INTERACTIVE].join(' ')}
+                      style={{ width: '100%', marginBottom: '16px' }}
+                    >
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Email</th>
+                          <th>Invoice Nr.</th>
+                          <th>Billing Amount</th>
+                          <th>&nbsp;</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {students.map((student, i) => (
+                          <InvoiceRow key={i} student={student} index={i} removeStudent={handleRemoveStudent} />
+                        ))}
+                      </tbody>
+                    </table>
+                    <StyledInput name="title" label="Invoice subject title" />
+                    <Button loading={submitting} type="submit" intent="primary">
+                      Send invoices
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
           </Card>
         </Form>
       </Formik>
@@ -96,7 +102,7 @@ const InvoiceRow: FC<{ student: Student; index: number; removeStudent: (i: numbe
 
   return (
     <tr>
-      <td>{`${student.lastName} ${student.firstName}${billingName()}`}</td>
+      <td>{`${getName(student)}${billingName()}`}</td>
       <td>{student.email}</td>
       <td>
         <StyledInput type="number" disabled name={`invoices.${index}.number`} />
@@ -112,6 +118,7 @@ const InvoiceRow: FC<{ student: Student; index: number; removeStudent: (i: numbe
 };
 
 function useForm(students: Student[], config: Config) {
+  console.log(students);
   const [loading, setLoading] = useState(false);
   const firebase = useContext(FirebaseContext);
   let counter = 0;
@@ -160,9 +167,8 @@ function useForm(students: Student[], config: Config) {
           }
         }
 
-        batch.commit();
-
-        firebase.setNewInvoiceId(lastId);
+        await batch.commit();
+        await firebase.setNewInvoiceId(lastId);
       } catch (error) {
         console.log(error);
       } finally {

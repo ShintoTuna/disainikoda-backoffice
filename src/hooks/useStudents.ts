@@ -9,14 +9,17 @@ export const useStudents = () => {
 
   useEffect(
     () =>
-      firebase.students().onSnapshot((snapshot) => {
-        const dbStudents: Student[] = [];
+      firebase
+        .students()
+        .orderBy('firstName', 'asc')
+        .onSnapshot((snapshot) => {
+          const dbStudents: Student[] = [];
 
-        snapshot.forEach((doc) => dbStudents.push({ ...(doc.data() as Student), uid: doc.id }));
+          snapshot.forEach((doc) => dbStudents.push({ ...(doc.data() as Student), uid: doc.id }));
 
-        setStudents(dbStudents);
-        setLoading(false);
-      }),
+          setStudents(dbStudents);
+          setLoading(false);
+        }),
     [firebase],
   );
 

@@ -4,6 +4,7 @@ import React from 'react';
 import { useGroups } from '../../hooks/useGroups';
 import { useGroupStudents } from '../../hooks/useGroupStudents';
 import { useGetStudents } from '../../hooks/useGetStudents';
+import { Button, H5 } from '@blueprintjs/core';
 
 interface ClientPickerProps {
   addStudents: (students: Student[]) => void;
@@ -22,13 +23,14 @@ const ClientPicker: FC<ClientPickerProps> = ({ addStudents }) => {
   };
 
   return (
-    <ul>
+    <div style={{ paddingBottom: '20px' }}>
+      <H5>Groups</H5>
       {groups.map((group) => (
-        <li key={group.uid} onClick={() => handleGroupSelect(group.uid)}>
+        <Button minimal style={{ display: 'block' }} key={group.uid} onClick={() => handleGroupSelect(group.uid)}>
           {group.name}
-        </li>
+        </Button>
       ))}
-    </ul>
+    </div>
   );
 };
 

@@ -5,6 +5,7 @@ import { Classes, Button, Card } from '@blueprintjs/core';
 import Loader from '../../components/Loader';
 import StudentsForm from './StudentForm';
 import { withAuthorization, Condition } from '../../contexts/Session';
+import { getName } from '../../utils/student';
 
 const Students: FC = () => {
   const [isOpen, setOpen] = useState(false);
@@ -22,14 +23,17 @@ const Students: FC = () => {
 
   useEffect(
     () =>
-      firebase.students().onSnapshot((snapshot) => {
-        const dbStudents: Student[] = [];
+      firebase
+        .students()
+        .orderBy('firstName', 'asc')
+        .onSnapshot((snapshot) => {
+          const dbStudents: Student[] = [];
 
-        snapshot.forEach((doc) => dbStudents.push({ ...(doc.data() as Student), uid: doc.id }));
+          snapshot.forEach((doc) => dbStudents.push({ ...(doc.data() as Student), uid: doc.id }));
 
-        setStudents(dbStudents);
-        setLoading(false);
-      }),
+          setStudents(dbStudents);
+          setLoading(false);
+        }),
     [firebase],
   );
 
@@ -103,7 +107,7 @@ const StudentRow: FC<{
   return (
     <tr>
       <td>{index}</td>
-      <td>{`${student.lastName} ${student.firstName}`}</td>
+      <td>{getName(student)}</td>
       <td>{student.email}</td>
       <td>{student.phone}</td>
       <td>{billingInformation()}</td>

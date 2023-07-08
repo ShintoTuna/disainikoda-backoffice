@@ -6,12 +6,15 @@ export const useGetStudents = () => {
   const firebase = useContext(FirebaseContext);
   const getStudentsByIds = async (ids: string[]) => {
     const students: Student[] = [];
-    const data = await firebase.students().get();
+    const data = await firebase
+      .students()
+      .orderBy('firstName', 'asc')
+      .get();
 
     if (!data.empty) {
       data.forEach((doc) => {
         if (ids.includes(doc.id)) {
-          students.push(doc.data() as Student);
+          students.push({ ...(doc.data() as Student), uid: doc.id });
         }
       });
     }

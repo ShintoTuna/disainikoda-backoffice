@@ -15,7 +15,7 @@ export const useGroupStudents = () => {
     const dbStudents: GroupStudent[] = [];
     const studentsCollection = getStudentCollection(groupUid);
 
-    const docSnap = await studentsCollection.get();
+    const docSnap = await studentsCollection.orderBy('firstName', 'asc').get();
 
     if (!docSnap.empty) {
       docSnap.forEach((doc) => {

@@ -27,8 +27,8 @@ const Invoices: FC = () => {
   const loadFiles = useCallback(async () => {
     setLoading(true);
     const res = await firebase.storage
-      .ref()
-      .child(`invoices/${year}`)
+      .ref('/')
+      .child(`/invoices/${year}`)
       .listAll();
 
     if (res.items.length === 0) {
