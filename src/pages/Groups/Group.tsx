@@ -3,6 +3,7 @@ import { Button } from '@blueprintjs/core';
 import { AddStudent } from '../../pages/Groups/AddStudent';
 import { Group as GroupType, GroupStudent } from '../../types';
 import { useGroupStudents } from '../../hooks/useGroupStudents';
+import { getName } from 'utils/student';
 
 interface Props {
   group: GroupType;
@@ -42,7 +43,7 @@ export const Group: FC<Props> = ({ group }) => {
         <ul>
           {students.map((student) => (
             <li key={student.uid}>
-              {student.firstName} {student.lastName}
+              {getName(student)}
               <Button onClick={() => handleRemoveStudent(student)}>Remove</Button>
             </li>
           ))}

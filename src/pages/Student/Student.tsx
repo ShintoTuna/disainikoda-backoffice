@@ -5,7 +5,7 @@ import { Classes, Button, Card } from '@blueprintjs/core';
 import Loader from '../../components/Loader';
 import StudentsForm from './StudentForm';
 import { withAuthorization, Condition } from '../../contexts/Session';
-import { getName } from '../../utils/student';
+import { getCompany, getName } from '../../utils/student';
 
 const Students: FC = () => {
   const [isOpen, setOpen] = useState(false);

@@ -3,6 +3,7 @@ import React, { FC, useEffect, useState } from 'react';
 import { useStudents } from '../../hooks/useStudents';
 import { Student } from '../../types';
 import { useGroupStudents } from '../../hooks/useGroupStudents';
+import { getName } from 'utils/student';
 
 interface Props {
   isOpen: boolean;
@@ -32,7 +33,7 @@ export const AddStudent: FC<Props> = ({ isOpen, close, groupUid, studentUids }) 
       <Button onClick={close}>Close</Button>
       {students.map((student) => (
         <div key={student.uid}>
-          {student.firstName} {student.lastName}
+          {getName(student)}
           <Button disabled={addedStudentIds.includes(student.uid)} onClick={() => handleAddStudent(student)}>
             Add
           </Button>
