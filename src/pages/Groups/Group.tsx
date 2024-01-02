@@ -43,7 +43,7 @@ export const Group: FC<Props> = ({ group }) => {
         <ul>
           {students.map((student) => (
             <li key={student.uid}>
-              {getName(student)}
+              {student.firstName} {student.lastName}
               <Button onClick={() => handleRemoveStudent(student)}>Remove</Button>
             </li>
           ))}
