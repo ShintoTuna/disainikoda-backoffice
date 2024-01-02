@@ -2,7 +2,7 @@ import app from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
 import 'firebase/storage';
-import { UserWithRoles, Config } from '../../types';
+import { UserWithRoles, Config, AllowedCompanies } from '../../types';
 
 const config = {
   apiKey: 'AIzaSyBcWr_GvqN-8nAiAvyTgnebYpTO0CTRmog',
@@ -78,11 +78,14 @@ class Firebase {
 
   getTimestamp = () => app.firestore.FieldValue.serverTimestamp();
 
-  setNewInvoiceId = (lastId: number) =>
-    this.db
+  setNewInvoiceId = (id: number, company: AllowedCompanies) => {
+    const lastId = company === 'mc' ? { mcLastId: id } : { lastId: id };
+
+    return this.db
       .collection('config')
       .doc('invoice')
-      .set({ lastId }, { merge: true });
+      .set(lastId, { merge: true });
+  };
 
   // *** User API ***
   user = (uid: string) => this.db.doc(`users/${uid}`);

@@ -1,10 +1,10 @@
 import { FC } from 'react';
-import { Student } from '../../types';
+import { Student } from 'types';
 import React from 'react';
-import { useGroups } from '../../hooks/useGroups';
-import { useGroupStudents } from '../../hooks/useGroupStudents';
-import { useGetStudents } from '../../hooks/useGetStudents';
+import { useGroups } from 'hooks/useGroups';
+import { useGroupStudents } from 'hooks/useGroupStudents';
 import { Button, H5 } from '@blueprintjs/core';
+import { useGetStudents } from 'hooks/useGetStudents';
 
 interface ClientPickerProps {
   addStudents: (students: Student[]) => void;

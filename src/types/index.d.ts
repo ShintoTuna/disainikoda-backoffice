@@ -8,6 +8,7 @@ export interface Student {
   firstName: string;
   lastName: string;
   phone?: string;
+  company: AllowedCompanies;
   billing?: {
     companyName: string;
     companyAddress: string;
@@ -19,6 +20,8 @@ export interface Config {
   invoice: {
     defaultAmount: number;
     lastId: number;
+    mcDefaultAmount: number;
+    mcLastId: number;
   };
 }
 
@@ -29,3 +32,5 @@ export interface Group {
 }
 
 export type GroupStudent = Omit<Student, 'email' | 'phone'> & { groupUid: string };
+
+export type AllowedCompanies = 'dk' | 'mc';

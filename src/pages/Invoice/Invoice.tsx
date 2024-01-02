@@ -1,16 +1,18 @@
 import React, { FC, useState, useContext } from 'react';
-import { Classes, Button, Card } from '@blueprintjs/core';
-import { Student, Config } from '../../types';
-import { FirebaseContext } from '../../contexts/Firebase';
-import StyledInput from '../../components/Form/StyledInput';
+import { Classes, Button, Card, HTMLSelect } from '@blueprintjs/core';
+import { Student, Config, AllowedCompanies } from 'types';
+import { FirebaseContext } from 'contexts/Firebase';
+import StyledInput from 'components/Form/StyledInput';
 import { Form, Formik, FormikConfig } from 'formik';
 import * as Yup from 'yup';
-import Loader from '../../components/Loader';
+import Loader from 'components/Loader';
 import maxBy from 'lodash/maxBy';
-import { withAuthorization, Condition } from '../../contexts/Session';
-import ClientPicker from './ClientPicker';
-import GroupPicker from '../../pages/Invoice/GroupPicker';
-import { getName } from '../../utils/student';
+import { withAuthorization, Condition } from 'contexts/Session';
+
+import { getName } from 'utils/student';
+import GroupPicker from 'pages/Invoice/GroupPicker';
+import ClientPicker from 'pages/Invoice/ClientPicker';
+import StyledSelect from 'components/Form/StyledSelect';
 
 interface FormModel {
   invoices: any[];
@@ -19,9 +21,10 @@ interface FormModel {
 
 const Invoice: FC = () => {
   const [loading] = useState(false);
+  const [company, setCompany] = useState<AllowedCompanies>('dk');
   const [students, setStudents] = useState<Student[]>([]);
   const firebase = useContext(FirebaseContext);
-  const { formikArgs, submitting } = useForm(students, firebase.config as Config);
+  const { formikArgs, submitting } = useForm(students, firebase.config as Config, company);
 
   const handleAddStudent = (newStudent: Student) => {
     if (window.confirm(`Add ${getName(newStudent)} to invoice?`)) {
@@ -46,6 +49,11 @@ const Invoice: FC = () => {
     });
   };
 
+  const handleCompanyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    console.log(e.target.value);
+    setCompany(e.target.value as AllowedCompanies);
+  };
+
   return (
     <Loader loading={!firebase.config || loading}>
       <Formik {...formikArgs}>
@@ -59,6 +67,10 @@ const Invoice: FC = () => {
               <div style={{ flex: 1, paddingLeft: '20px' }}>
                 {students.length > 0 && (
                   <>
+                    <HTMLSelect name="company" defaultValue="dk" onChange={handleCompanyChange}>
+                      <option value="dk">Disainikoda</option>
+                      <option value="mc">Monochrome</option>
+                    </HTMLSelect>
                     <table
                       className={[Classes.HTML_TABLE, Classes.HTML_TABLE_STRIPED, Classes.INTERACTIVE].join(' ')}
                       style={{ width: '100%', marginBottom: '16px' }}
@@ -117,17 +129,18 @@ const InvoiceRow: FC<{ student: Student; index: number; removeStudent: (i: numbe
   );
 };
 
-function useForm(students: Student[], config: Config) {
-  console.log(students);
+function useForm(students: Student[], config: Config, company: AllowedCompanies) {
   const [loading, setLoading] = useState(false);
   const firebase = useContext(FirebaseContext);
   let counter = 0;
 
+  const id = (company === 'mc' ? config && config.invoice.mcLastId : config && config.invoice.lastId) || 0;
+  const amount =
+    (company === 'mc' ? config && config.invoice.mcDefaultAmount : config && config.invoice.defaultAmount) || 0;
+
   const initialValues = () =>
     students.map((s) => {
       counter++;
-      const id = (config && config.invoice.lastId) || 0;
-      const amount = (config && config.invoice.defaultAmount) || 0;
 
       return { uid: s.uid, number: id + counter, amount, included: true };
     });
@@ -152,6 +165,8 @@ function useForm(students: Student[], config: Config) {
       try {
         setLoading(true);
 
+        console.log(data);
+
         const { number: lastId } = maxBy(data.invoices, 'number');
         const batch = firebase.db.batch();
 
@@ -162,13 +177,14 @@ function useForm(students: Student[], config: Config) {
               student: invoice.uid,
               amount: invoice.amount,
               title: data.title,
+              company,
               date: firebase.getTimestamp(),
             });
           }
         }
 
         await batch.commit();
-        await firebase.setNewInvoiceId(lastId);
+        await firebase.setNewInvoiceId(lastId, company);
       } catch (error) {
         console.log(error);
       } finally {

@@ -9,6 +9,7 @@ import {
   Button,
   Classes,
   IconName,
+  HTMLSelect,
 } from '@blueprintjs/core';
 import { FirebaseContext } from '../../contexts/Firebase';
 import Route from '../../constants/routes';
@@ -47,9 +48,6 @@ const Nav: FC<Props> = ({ history, theme, toggleTheme }) => {
     <Navbar className={Classes.ELEVATION_3} style={style}>
       <div style={{ margin: '0 auto', width: '1200px' }}>
         <NavbarGroup align={Alignment.LEFT}>
-          <NavbarHeading>Disainikoda</NavbarHeading>
-          <NavbarDivider />
-
           {Routes.map((r, i) => (
             <NavLinkComponent key={i} link={r} go={go} />
           ))}

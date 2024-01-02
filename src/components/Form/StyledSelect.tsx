@@ -1,4 +1,4 @@
-import { Classes, FormGroup } from '@blueprintjs/core';
+import { Classes, FormGroup, HTMLSelect } from '@blueprintjs/core';
 import { Field, FieldProps } from 'formik';
 import React, { Component, FC } from 'react';
 
@@ -40,11 +40,9 @@ class StyledSelect extends Component<Props> {
               helperText={error}
               inline={inline}
             >
-              <div className={Classes.SELECT}>
-                <select {...fieldArgs} defaultValue={defaultValue} onChange={onChange ? onChange : formikOnChange}>
-                  {children}
-                </select>
-              </div>
+              <HTMLSelect {...fieldArgs} defaultValue={defaultValue} onChange={onChange ? onChange : formikOnChange}>
+                {children}
+              </HTMLSelect>
             </FormGroup>
           );
         }}

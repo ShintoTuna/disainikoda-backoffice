@@ -4,7 +4,8 @@ import StyledInput from '../../components/Form/StyledInput';
 import { Button, Divider, Dialog, Classes } from '@blueprintjs/core';
 import * as Yup from 'yup';
 import { FirebaseContext } from '../../contexts/Firebase';
-import { Student } from '../../types';
+import { AllowedCompanies, Student } from '../../types';
+import StyledSelect from 'components/Form/StyledSelect';
 
 interface Props {
   isOpen: boolean;
@@ -20,6 +21,11 @@ const StudentsForm: FC<Props> = ({ isOpen, close, selected }) => {
       <Formik {...args}>
         <Form>
           <div className={Classes.DIALOG_BODY}>
+            <StyledSelect name="company" label="Company" defaultValue="dk">
+              <StyledSelect.Option name="Disainikoda" value="dk" />
+              <StyledSelect.Option name="Monochrome" value="mc" />
+            </StyledSelect>
+            <Divider />
             <StyledInput type="hidden" name="uid" />
             <StyledInput name="firstName" label="First Name" />
             <StyledInput name="lastName" label="Last Name" />
@@ -48,19 +54,23 @@ type FormModel = Student;
 function useForm(selected: Props['selected'], close: Props['close']) {
   const [loading, setLoading] = useState(false);
   const firebase = useContext(FirebaseContext);
-  const defaults = {
+  const defaults: Student = {
     uid: '',
     firstName: '',
     lastName: '',
     email: '',
     phone: '',
     billing: { companyAddress: '', companyName: '', companyRegNumber: '' },
+    company: 'dk',
   };
 
   const args: FormikConfig<FormModel> = {
     validationSchema: Yup.object().shape({
       firstName: Yup.string().required(),
       lastName: Yup.string().required(),
+      company: Yup.mixed<AllowedCompanies>()
+        .oneOf(['dk', 'mc'])
+        .required(),
       email: Yup.string()
         .email()
         .required(),

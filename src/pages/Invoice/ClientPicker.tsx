@@ -1,7 +1,7 @@
 import { FC } from 'react';
-import { Student } from '../../types';
+import { Student } from 'types';
 import React from 'react';
-import { useStudents } from '../../hooks/useStudents';
+import { useStudents } from 'hooks/useStudents';
 import { Button, H5 } from '@blueprintjs/core';
 
 interface ClientPickerProps {
