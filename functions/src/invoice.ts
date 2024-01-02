@@ -13,6 +13,39 @@ const sideMargin = 50;
 
 const payPeriod = 10;
 
+interface Company {
+  name: string;
+  regNr: string;
+  address: string;
+  email: string;
+  phone: string;
+  web: string;
+  bank: string;
+  iban: string;
+}
+
+const dk: Company = {
+  name: 'Disainikoda MTÜ',
+  regNr: '80330013',
+  address: 'Jõesuu tee 6-1, Pirita, Tallinn, 11911',
+  email: 'info@disainikoda.ee',
+  phone: '+372 55 604 000',
+  web: 'www.disainikoda.ee',
+  bank: 'SEB Pank',
+  iban: 'EE701010220199571223',
+};
+
+const mc: Company = {
+  name: 'Monochrome Art OÜ',
+  regNr: '16802055',
+  address: 'Jõesuu tee 6-1, Pirita, Tallinn, 11911',
+  email: 'art@monochrome.ee',
+  phone: '+372 55 604 000',
+  web: 'www.monochrome.ee',
+  bank: 'LHV Pank',
+  iban: 'EE357700771009403005',
+};
+
 function createInvoice(doc: PDFKit.PDFDocument, student: Student, invoice: InvoiceWithNumber) {
   doc.fillColor(fontColor);
 
@@ -32,6 +65,8 @@ function logo(doc: PDFKit.PDFDocument, invoice: InvoiceWithNumber) {
 }
 
 function paymentDetails(doc: PDFKit.PDFDocument, invoice: InvoiceWithNumber) {
+  const company = invoice.company === 'mc' ? mc : dk;
+
   doc
     .fontSize(fontSizeGeneral)
 
@@ -56,9 +91,9 @@ function paymentDetails(doc: PDFKit.PDFDocument, invoice: InvoiceWithNumber) {
     .text(formatDate(invoice.date, payPeriod), 350, topMargin + lineHeight * 2, { align: 'right' })
 
     .font('Helvetica')
-    .text('SEB Pank:', 350, topMargin + lineHeight * 3)
+    .text(`${company.bank}:`, 350, topMargin + lineHeight * 3)
     .font('Helvetica-Bold')
-    .text('EE701010220199571223', 350, topMargin + lineHeight * 3, { align: 'right' });
+    .text(company.iban, 350, topMargin + lineHeight * 3, { align: 'right' });
 }
 
 function studentDetails(doc: PDFKit.PDFDocument, student: Student) {
@@ -117,39 +152,6 @@ function invoiceDetails(doc: PDFKit.PDFDocument, invoice: InvoiceWithNumber) {
     .font('Helvetica-Bold')
     .text(formatCurrency(invoice.amount), 500, top + 75, { align: 'right', width: 46 });
 }
-
-interface Company {
-  name: string;
-  regNr: string;
-  address: string;
-  email: string;
-  phone: string;
-  web: string;
-  bank: string;
-  iban: string;
-}
-
-const dk: Company = {
-  name: 'Disainikoda MTÜ',
-  regNr: '80330013',
-  address: 'Jõesuu tee 6-1, Pirita, Tallinn, 11911',
-  email: 'info@disainikoda.ee',
-  phone: '+372 55 604 000',
-  web: 'www.disainikoda.ee',
-  bank: 'SEB Pank',
-  iban: 'EE701010220199571223',
-};
-
-const mc: Company = {
-  name: 'Monochrome Art OŪ',
-  regNr: '16802055',
-  address: 'Jõesuu tee 6-1, Pirita, Tallinn, 11911',
-  email: 'art@monochrome.ee',
-  phone: '+372 55 604 000',
-  web: 'www.monochrome.ee',
-  bank: 'LHV Pank',
-  iban: 'EE357700771009403005',
-};
 
 function footer(doc: PDFKit.PDFDocument, invoice: InvoiceWithNumber) {
   const top = topMargin + 600;

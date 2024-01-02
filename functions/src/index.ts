@@ -7,10 +7,6 @@ import createInvoice from './invoice';
 import * as sendGrid from '@sendgrid/mail';
 import { MailDataRequired } from '@sendgrid/helpers/classes/mail';
 
-const API_KEY = functions.config().sendgrid.key;
-const TEMPLATE_ID = functions.config().sendgrid.template;
-
-sendGrid.setApiKey(API_KEY);
 admin.initializeApp();
 
 export const invoiceCreation = functions.firestore.document('invoice/{id}').onCreate(async (snapshot, context) => {
@@ -90,6 +86,12 @@ function generatePdf(stream: NodeJS.WritableStream, invoice: InvoiceWithNumber, 
 function sendEmail(buffers: Buffer[], student: Student, invoice: InvoiceWithNumber) {
   const pdfData = Buffer.concat(buffers);
   const recipientName = getRecipientName(student);
+  const isMc = invoice.company === 'mc';
+
+  const companyName = isMc ? 'Monochrome Art OÜ' : 'Disainikoda MTÜ';
+  const apiKey = isMc ? functions.config().monochrome.api_key : functions.config().disainikoda.api_key;
+  const templateId = isMc ? functions.config().monochrome.template : functions.config().disainikoda.template;
+  const fromEmail = isMc ? functions.config().monochrome.email : functions.config().disainikoda.email;
 
   const msg: MailDataRequired = {
     personalizations: [
@@ -107,10 +109,10 @@ function sendEmail(buffers: Buffer[], student: Student, invoice: InvoiceWithNumb
       },
     ],
     from: {
-      email: functions.config().mailer.email,
-      name: 'Disainikoda',
+      email: fromEmail,
+      name: companyName,
     },
-    templateId: TEMPLATE_ID,
+    templateId,
     attachments: [
       {
         type: 'application/pdf',
@@ -120,6 +122,8 @@ function sendEmail(buffers: Buffer[], student: Student, invoice: InvoiceWithNumb
       },
     ],
   };
+
+  sendGrid.setApiKey(apiKey);
 
   return sendGrid.send(msg);
 }
