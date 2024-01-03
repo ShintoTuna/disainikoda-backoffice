@@ -25,7 +25,7 @@ export const invoiceCreation = functions.firestore.document('invoice/{id}').onCr
     const pdfFile = admin
       .storage()
       .bucket()
-      .file(`/invoices/${currentYear}/${filename}`);
+      .file(`invoices/${currentYear}/${filename}`);
     const stream = pdfFile.createWriteStream();
 
     const pdf = await generatePdf(stream, invoice, student);
